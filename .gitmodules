@@ -4,3 +4,6 @@
 [submodule "web3webdeploy"]
 	path = web3webdeploy
 	url = https://github.com/Plopmenz/web3webdeploy
+[submodule "lib/openrd-foundry"]
+	path = lib/openrd-foundry
+	url = https://github.com/plopmenz/openrd-foundry
