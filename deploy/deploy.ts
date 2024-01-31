@@ -1,22 +1,28 @@
-import { zeroAddress } from "viem";
 import { Address, Deployer } from "../web3webdeploy/types";
+import {
+  TasksDeployment,
+  deploy as tasksDeploy,
+} from "../lib/openrd-foundry/deploy/deploy";
 
-export interface DeploymentSettings {
-  tasks: Address;
+export interface RFPsDeploymentSettings {
+  tasksDeployment: TasksDeployment;
 }
 
-export interface Deployment {
+export interface RFPsDeployment {
   RFPs: Address;
 }
 
 export async function deploy(
   deployer: Deployer,
-  settings?: DeploymentSettings
-): Promise<Deployment> {
+  settings?: RFPsDeploymentSettings
+): Promise<RFPsDeployment> {
+  const taskDeployment =
+    settings?.tasksDeployment ?? (await tasksDeploy(deployer));
+
   const RFPs = await deployer.deploy({
     id: "RFPs",
     contract: "RFPs",
-    args: [settings?.tasks ?? zeroAddress],
+    args: [taskDeployment.tasks],
   });
   return {
     RFPs: RFPs,
