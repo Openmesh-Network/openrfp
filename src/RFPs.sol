@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {IRFPs, IERC20, Escrow, ITasks, SafeERC20} from "./IRFPs.sol";
+import {IRFPs, IERC20, RFPEscrow, ITasks, SafeERC20} from "./IRFPs.sol";
 
 contract RFPs is IRFPs {
     using SafeERC20 for IERC20;
@@ -20,7 +20,7 @@ contract RFPs is IRFPs {
 
     constructor(ITasks _tasks) {
         tasks = _tasks;
-        escrowImplementation = address(new Escrow());
+        escrowImplementation = address(new RFPEscrow());
     }
 
     receive() external payable {}
@@ -62,22 +62,19 @@ contract RFPs is IRFPs {
         RFP storage rfp = rfps[rfpId];
         rfp.metadata = _metadata;
         rfp.deadline = _deadline;
-        {
-            Escrow escrow = Escrow(payable(clone(escrowImplementation)));
-            escrow.__Escrow_init{value: msg.value}();
-            rfp.escrow = escrow;
-            // Gas optimization
-            if (msg.value != 0) {
-                rfp.nativeBudget = _toUint96(msg.value);
-            }
-            rfp.budgetCount = _toUint8(_budget.length);
-            for (uint8 i; i < uint8(_budget.length);) {
-                _budget[i].tokenContract.safeTransferFrom(msg.sender, address(escrow), _budget[i].amount);
-                // use balanceOf in case there is a fee asoosiated with the transfer
-                rfp.budget[i] = _budget[i].tokenContract;
-                unchecked {
-                    ++i;
-                }
+
+        RFPEscrow escrow = RFPEscrow(payable(clone(escrowImplementation)));
+        escrow.__RFPEscrow_init{value: msg.value}(tasks, _budget);
+        rfp.escrow = escrow;
+
+        rfp.budgetCount = _toUint8(_budget.length);
+        for (uint8 i; i < uint8(_budget.length);) {
+            _budget[i].tokenContract.safeTransferFrom(msg.sender, address(escrow), _budget[i].amount);
+
+            // Only token addresses are saved, the escrow can be topped up freely at any time
+            rfp.budget[i] = _budget[i].tokenContract;
+            unchecked {
+                ++i;
             }
         }
 
@@ -90,12 +87,13 @@ contract RFPs is IRFPs {
             rfpId,
             _metadata,
             _deadline,
-            _toUint96(msg.value),
+            msg.value,
             _budget,
             msg.sender,
             _tasksManager,
             _disputeManager,
-            _manager
+            _manager,
+            escrow
         );
     }
 
@@ -113,6 +111,7 @@ contract RFPs is IRFPs {
         if (rfp.deadline <= block.timestamp) {
             revert RFPClosed();
         }
+
         // Ensure reward ends with next token
         unchecked {
             if (_reward.length != 0 && !_reward[_reward.length - 1].nextToken) {
@@ -152,13 +151,19 @@ contract RFPs is IRFPs {
     }
 
     /// @inheritdoc IRFPs
-    function acceptProject(uint256 _rfpId, uint32 _projectId) external {
+    function acceptProject(
+        uint256 _rfpId,
+        uint32 _projectId,
+        uint96[] calldata _nativeReward,
+        uint88[] calldata _reward
+    ) external {
         RFP storage rfp = _getRFP(_rfpId);
 
         // Ensure sender is manager
-        if (rfp.manager != msg.sender) {
+        if (msg.sender != rfp.manager) {
             revert NotManager();
         }
+
         // Ensure project exists
         if (_projectId >= rfp.projectCount) {
             revert ProjectDoesNotExist();
@@ -174,14 +179,13 @@ contract RFPs is IRFPs {
         uint96 taskNativeBudget;
         ITasks.NativeReward[] memory taskNativeReward = new ITasks.NativeReward[](project.nativeRewardCount);
         for (uint8 i; i < taskNativeReward.length;) {
-            taskNativeReward[i] = project.nativeReward[i];
-            taskNativeBudget += taskNativeReward[i].amount;
+            taskNativeReward[i] = ITasks.NativeReward(project.nativeReward[i].to, _nativeReward[i]);
+            taskNativeBudget += _nativeReward[i];
 
             unchecked {
                 ++i;
             }
         }
-        rfp.escrow.transferNative(payable(address(this)), taskNativeBudget);
 
         ITasks.ERC20Transfer[] memory taskBudget = new ITasks.ERC20Transfer[](rfp.budgetCount);
         ITasks.Reward[] memory taskReward = new ITasks.Reward[](project.rewardCount);
@@ -192,7 +196,8 @@ contract RFPs is IRFPs {
                 uint96 projectBudget;
                 while (j < taskReward.length) {
                     taskReward[j] = project.reward[j];
-                    projectBudget += taskReward[j].amount;
+                    taskReward[j].amount = _reward[j];
+                    projectBudget += _reward[j];
 
                     unchecked {
                         ++j;
@@ -204,8 +209,6 @@ contract RFPs is IRFPs {
                 }
 
                 taskBudget[i] = ITasks.ERC20Transfer(erc20, projectBudget);
-                rfp.escrow.transfer(erc20, address(this), projectBudget);
-                erc20.forceApprove(address(tasks), projectBudget);
 
                 unchecked {
                     ++i;
@@ -216,8 +219,15 @@ contract RFPs is IRFPs {
         ITasks.PreapprovedApplication[] memory preapproved = new ITasks.PreapprovedApplication[](1);
         preapproved[0] = ITasks.PreapprovedApplication(project.representative, taskNativeReward, taskReward);
 
-        uint256 taskId = tasks.createTask{value: taskNativeBudget}(
-            project.metadata, project.deadline, rfp.tasksManager, rfp.disputeManager, taskBudget, preapproved
+        uint256 taskId = rfp.escrow.createTask(
+            tasks,
+            project.metadata,
+            project.deadline,
+            rfp.tasksManager,
+            rfp.disputeManager,
+            taskNativeBudget,
+            taskBudget,
+            preapproved
         );
         project.accepted = true;
         emit ProjectAccepted(_rfpId, _projectId, taskId);
@@ -228,7 +238,7 @@ contract RFPs is IRFPs {
         RFP storage rfp = _getRFP(_rfpId);
 
         // Ensure sender is manager
-        if (rfp.manager != msg.sender) {
+        if (msg.sender != rfp.manager) {
             revert NotManager();
         }
 
@@ -263,7 +273,6 @@ contract RFPs is IRFPs {
         offchainRFP.tasksManager = rfp.tasksManager;
         offchainRFP.manager = rfp.manager;
         offchainRFP.escrow = rfp.escrow;
-        offchainRFP.nativeBudget = rfp.nativeBudget;
 
         offchainRFP.budget = new IERC20[](rfp.budgetCount);
         for (uint8 i; i < offchainRFP.budget.length;) {
@@ -324,12 +333,5 @@ contract RFPs is IRFPs {
             revert Overflow();
         }
         return uint8(value);
-    }
-
-    function _toUint96(uint256 value) internal pure returns (uint96) {
-        if (value > type(uint96).max) {
-            revert Overflow();
-        }
-        return uint96(value);
     }
 }

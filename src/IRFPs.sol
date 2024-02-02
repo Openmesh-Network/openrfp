@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {Escrow, IERC20, SafeERC20} from "../lib/openrd-foundry/src/Escrow.sol";
+import {RFPEscrow, IERC20, SafeERC20} from "./RFPEscrow.sol";
 import {ITasks} from "../lib/openrd-foundry/src/ITasks.sol";
 
 interface IRFPs {
@@ -19,12 +19,13 @@ interface IRFPs {
         uint256 indexed rfpId,
         string metadata,
         uint64 deadline,
-        uint96 nativeBudget,
+        uint256 nativeBudget,
         ITasks.ERC20Transfer[] budget,
         address creator,
         address tasksManager,
         address disputeManager,
-        address manager
+        address manager,
+        RFPEscrow escrow
     );
     event ProjectSubmitted(
         uint256 indexed rfpId,
@@ -68,8 +69,7 @@ interface IRFPs {
     /// @notice A container for RFP-related information.
     /// @param metadata Metadata of the RFP. (IPFS hash)
     /// @param deadline Block timestamp at which the RFP closes.
-    /// @param nativeBudget Maximum native currency reward available for projects of the RFP.
-    /// @param budget The ERC20 contract that compose the budget.
+    /// @param budget The ERC20 contracts that compose the budget.
     /// @param creator Who has created the RFP.
     /// @param tasksManager Who has the permission to manage the OpenR&D tasks.
     /// @param disputeManager Who has the permission to manage disputes on the OpenR&D tasks.
@@ -79,9 +79,8 @@ interface IRFPs {
         string metadata;
         // Storage block seperator
         uint64 deadline;
-        Escrow escrow;
+        RFPEscrow escrow;
         // Storage block seperator
-        uint96 nativeBudget;
         address creator;
         // Storage block seperator
         address tasksManager;
@@ -99,8 +98,7 @@ interface IRFPs {
     struct OffChainRFP {
         string metadata;
         uint64 deadline;
-        Escrow escrow;
-        uint96 nativeBudget;
+        RFPEscrow escrow;
         address creator;
         address tasksManager;
         address disputeManager;
@@ -153,7 +151,14 @@ interface IRFPs {
     /// @notice Accept project to be funnded by the RFP.
     /// @param _rfpId Id of the RFP.
     /// @param _projectId Id of the project to accept.
-    function acceptProject(uint256 _rfpId, uint32 _projectId) external;
+    /// @param _nativeReward Native reward granted to the project (can be lower or higher than requested).
+    /// @param _reward Reward granted to the project (can be lower or higher than requested).
+    function acceptProject(
+        uint256 _rfpId,
+        uint32 _projectId,
+        uint96[] calldata _nativeReward,
+        uint88[] calldata _reward
+    ) external;
 
     /// @notice Refunds any leftover budget to the creator.
     /// @param _rfpId Id of the RFP.
