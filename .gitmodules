@@ -7,9 +7,6 @@
 [submodule "lib/openrd-foundry"]
 	path = lib/openrd-foundry
 	url = https://github.com/plopmenz/openrd-foundry
-[submodule "lib/ens-reverse-registrar"]
-	path = lib/ens-reverse-registrar
-	url = https://github.com/plopmenz/ens-reverse-registrar
 [submodule "lib/openmesh-admin"]
 	path = lib/openmesh-admin
 	url = https://github.com/plopmenz/openmesh-admin

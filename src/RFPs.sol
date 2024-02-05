@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {ClaimReverseENS} from "../lib/ens-reverse-registrar/src/ClaimReverseENS.sol";
+import {OpenmeshENSReverseClaimable} from "../lib/openmesh-admin/src/OpenmeshENSReverseClaimable.sol";
 
 import {IRFPs, IERC20, RFPEscrow, ITasks, SafeERC20} from "./IRFPs.sol";
 
-contract RFPs is ClaimReverseENS, IRFPs {
+contract RFPs is OpenmeshENSReverseClaimable, IRFPs {
     using SafeERC20 for IERC20;
 
     /// @notice The Tasks deployment where accepted projects will be created.
@@ -20,7 +20,7 @@ contract RFPs is ClaimReverseENS, IRFPs {
     /// @notice The base escrow contract that will be cloned for every RFP.
     address public immutable escrowImplementation;
 
-    constructor(ITasks _tasks, address _admin, address _reverseRegistrar) ClaimReverseENS(_admin, _reverseRegistrar) {
+    constructor(ITasks _tasks) {
         tasks = _tasks;
         escrowImplementation = address(new RFPEscrow());
     }
