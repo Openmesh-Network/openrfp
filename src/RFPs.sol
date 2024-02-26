@@ -201,12 +201,15 @@ contract RFPs is OpenmeshENSReverseClaimable, IRFPs {
                     taskReward[j].amount = _reward[j];
                     projectBudget += _reward[j];
 
-                    unchecked {
-                        ++j;
+                    if (taskReward[j].nextToken) {
+                        unchecked {
+                            ++j;
+                        }
+                        break;
                     }
 
-                    if (taskReward[j - 1].nextToken) {
-                        break;
+                    unchecked {
+                        ++j;
                     }
                 }
 
