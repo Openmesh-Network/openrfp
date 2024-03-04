@@ -19,8 +19,10 @@ export async function deploy(
   settings?: RFPsDeploymentSettings
 ): Promise<RFPsDeployment> {
   deployer.startContext("lib/openrd-foundry");
-  const taskDeployment =
-    settings?.tasksDeployment ?? (await tasksDeploy(deployer));
+  const taskDeployment = {
+    tasks: "0xe01ed3FD86b4a2Ae10F5F9b05507F8c0806604e0",
+  } as const;
+  //settings?.tasksDeployment ?? (await tasksDeploy(deployer));
   deployer.finishContext();
 
   const RFPs = await deployRFPs(deployer, {

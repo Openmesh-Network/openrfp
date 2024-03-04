@@ -235,7 +235,7 @@ contract RFPs is OpenmeshENSReverseClaimable, IRFPs {
             preapproved
         );
         project.accepted = true;
-        emit ProjectAccepted(_rfpId, _projectId, taskId);
+        emit ProjectAccepted(_rfpId, _projectId, _nativeReward, _reward, taskId);
     }
 
     /// @inheritdoc IRFPs

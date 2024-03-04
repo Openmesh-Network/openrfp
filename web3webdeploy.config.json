@@ -1,5 +1,5 @@
 {
   "deleteUnfishedDeploymentOnGenerate": true,
   "defaultCreate2": true,
-  "defaultSalt": "OPENMESH"
+  "defaultSalt": "TEST4"
 }

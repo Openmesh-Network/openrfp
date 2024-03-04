@@ -36,7 +36,9 @@ interface IRFPs {
         ITasks.NativeReward[] nativeReward,
         ITasks.Reward[] reward
     );
-    event ProjectAccepted(uint256 indexed rfpId, uint32 projectId, uint256 taskId);
+    event ProjectAccepted(
+        uint256 indexed rfpId, uint32 projectId, uint96[] nativeReward, uint88[] reward, uint256 taskId
+    );
     event RFPEmptied(uint256 indexed rfpId);
 
     /// @notice A container for a RFP project.
