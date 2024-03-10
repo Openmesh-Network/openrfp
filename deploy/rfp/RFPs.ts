@@ -1,14 +1,13 @@
-import { Deployer } from "../../web3webdeploy/types";
-import { Address, DeployInfo } from "../web3webdeploy/types";
+import { Deployer, Address, DeployInfo } from "../../web3webdeploy/types";
 
-export interface RFPsDeploymentSettingsInternal
+export interface DeployRFPsSettings
   extends Omit<DeployInfo, "contract" | "args"> {
   tasks: Address;
 }
 
 export async function deployRFPs(
   deployer: Deployer,
-  settings: RFPsDeploymentSettingsInternal
+  settings: DeployRFPsSettings
 ) {
   return await deployer.deploy({
     id: "RFPs",
