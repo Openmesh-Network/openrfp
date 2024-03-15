@@ -3,7 +3,7 @@ import {
   TasksDeployment,
   deploy as tasksDeploy,
 } from "../lib/openrd-foundry/deploy/deploy";
-import { DeployRFPsSettings, deployRFPs } from "./rfp/RFPs";
+import { DeployRFPsSettings, deployRFPs } from "./internal/RFPs";
 
 export interface RFPsDeploymentSettings {
   tasksDeployment: TasksDeployment;
