@@ -14,5 +14,6 @@ export async function deployRFPs(
     contract: "RFPs",
     args: [settings.tasks],
     ...settings,
-  });
+  })
+  .then(deployment => deployment.address);
 }
