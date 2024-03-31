@@ -263,6 +263,29 @@ contract RFPs is OpenmeshENSReverseClaimable, IRFPs {
         emit RFPEmptied(_rfpId);
     }
 
+    error NativeTransferFailed();
+
+    /// @notice To save any native funds stuck in this contract (done by the Openmesh community)
+    function rescueNative(address payable to, uint256 amount) external {
+        if (msg.sender != OPENMESH_ADMIN) {
+            revert NotManager();
+        }
+
+        (bool success,) = to.call{value: amount}("");
+        if (!success) {
+            revert NativeTransferFailed();
+        }
+    }
+
+    /// @notice To save any erc20 funds stuck in this contract (done by the Openmesh community)
+    function rescue(IERC20 token, address to, uint256 amount) external {
+        if (msg.sender != OPENMESH_ADMIN) {
+            revert NotManager();
+        }
+
+        token.transfer(to, amount);
+    }
+
     function _getRFP(uint256 _rfpId) internal view returns (RFP storage rfp) {
         if (_rfpId >= rfpCounter) {
             revert RFPDoesNotExist();
