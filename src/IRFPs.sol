@@ -79,20 +79,20 @@ interface IRFPs {
     /// @param projects Projects that want to be funded by the RFP.
     struct RFP {
         string metadata;
-        // Storage block seperator
+        // Storage block separator
         uint64 deadline;
         RFPEscrow escrow;
-        // Storage block seperator
+        // Storage block separator
         address creator;
-        // Storage block seperator
+        // Storage block separator
         address tasksManager;
-        // Storage block seperator
+        // Storage block separator
         address disputeManager;
-        // Storage block seperator
+        // Storage block separator
         address manager;
         uint8 budgetCount;
         uint32 projectCount;
-        // Storage block seperator
+        // Storage block separator
         mapping(uint8 => IERC20) budget;
         mapping(uint32 => Project) projects;
     }
@@ -123,7 +123,7 @@ interface IRFPs {
     /// @notice Create a new RFP.
     /// @param _metadata Metadata of the RFP. (IPFS hash)
     /// @param _deadline Block timestamp at which the RFP closes.
-    /// @param _budget Maximum ERC20 rewards avaliable for projects of the RFP.
+    /// @param _budget Maximum ERC20 rewards available for projects of the RFP.
     /// @param _tasksManager Who will manage the project Tasks (become the OpenR&D manager).
     /// @param _manager Who will manage the RFP (become the manager).
     /// @return rfpId Id of the newly created RFP.
@@ -150,7 +150,7 @@ interface IRFPs {
         ITasks.Reward[] calldata _reward
     ) external returns (uint32 projectId);
 
-    /// @notice Accept project to be funnded by the RFP.
+    /// @notice Accept project to be funded by the RFP.
     /// @param _rfpId Id of the RFP.
     /// @param _projectId Id of the project to accept.
     /// @param _nativeReward Native reward granted to the project (can be lower or higher than requested).
