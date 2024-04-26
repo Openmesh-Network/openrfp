@@ -1,15 +1,7 @@
-## Foundry Template
+## OpenRFP
 
-This template adds web3webdeploy and the slither analyzer to the base foundry project.
-
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
-
-Foundry consists of:
-
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+Smart contracts to provide an extension on top of OpenR&D, to allow for RFP creation.  
+An RFP is simply a budget that projects can apply to get a part of. If approved, an OpenR&D task will be created for this project with the respective amount of approved funding as budget. The project representative will be preapproved to take the project. In case the task is canceled, the budget will be returned to the RFP.
 
 ## Documentation
 
