@@ -4,9 +4,9 @@
 [submodule "web3webdeploy"]
 	path = web3webdeploy
 	url = https://github.com/Plopmenz/web3webdeploy
-[submodule "lib/openrd-foundry"]
-	path = lib/openrd-foundry
-	url = https://github.com/plopmenz/openrd-foundry
+[submodule "lib/openrd"]
+	path = lib/openrd
+	url = https://github.com/Openmesh-Network/openrd
 [submodule "lib/openmesh-admin"]
 	path = lib/openmesh-admin
-	url = https://github.com/plopmenz/openmesh-admin
+	url = https://github.com/Openmesh-Network/openmesh-admin
