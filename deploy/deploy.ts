@@ -2,7 +2,7 @@ import { Address, Deployer } from "../web3webdeploy/types";
 import {
   TasksDeployment,
   deploy as tasksDeploy,
-} from "../lib/openrd-foundry/deploy/deploy";
+} from "../lib/openrd/deploy/deploy";
 import { DeployRFPsSettings, deployRFPs } from "./internal/RFPs";
 
 export interface RFPsDeploymentSettings {
@@ -28,7 +28,7 @@ export async function deploy(
     }
   }
 
-  deployer.startContext("lib/openrd-foundry");
+  deployer.startContext("lib/openrd");
   const taskDeployment =
     settings?.tasksDeployment ?? (await tasksDeploy(deployer));
   deployer.finishContext();
@@ -38,7 +38,7 @@ export async function deploy(
     tasks: taskDeployment.tasks,
   });
 
-  const deployment = {
+  const deployment: RFPsDeployment = {
     RFPs: RFPs,
   };
   await deployer.saveDeployment({

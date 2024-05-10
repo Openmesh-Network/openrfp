@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {Escrow, IERC20, SafeERC20} from "../lib/openrd-foundry/src/Escrow.sol";
-import {ITasks} from "../lib/openrd-foundry/src/ITasks.sol";
+import {Escrow, IERC20, SafeERC20} from "../lib/openrd/src/Escrow.sol";
+import {ITasks} from "../lib/openrd/src/ITasks.sol";
 
 contract RFPEscrow is Escrow {
     using SafeERC20 for IERC20;

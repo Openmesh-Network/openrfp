@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {RFPEscrow, IERC20, SafeERC20} from "./RFPEscrow.sol";
-import {ITasks} from "../lib/openrd-foundry/src/ITasks.sol";
+import {ITasks} from "../lib/openrd/src/ITasks.sol";
 
 interface IRFPs {
     error RFPDoesNotExist();
