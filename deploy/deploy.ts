@@ -4,6 +4,7 @@ import {
   deploy as tasksDeploy,
 } from "../lib/openrd/deploy/deploy";
 import { DeployRFPsSettings, deployRFPs } from "./internal/RFPs";
+import { Gwei } from "../web3webdeploy/lib/etherUnits";
 
 export interface RFPsDeploymentSettings {
   tasksDeployment: TasksDeployment;
@@ -30,7 +31,8 @@ export async function deploy(
 
   deployer.startContext("lib/openrd");
   const taskDeployment =
-    settings?.tasksDeployment ?? (await tasksDeploy(deployer));
+    settings?.tasksDeployment ??
+    (await tasksDeploy(deployer, { forceRedeploy: false } as any));
   deployer.finishContext();
 
   const RFPs = await deployRFPs(deployer, {
