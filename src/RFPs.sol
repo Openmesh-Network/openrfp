@@ -298,6 +298,7 @@ contract RFPs is OpenmeshENSReverseClaimable, IRFPs {
         offchainRFP.metadata = rfp.metadata;
         offchainRFP.deadline = rfp.deadline;
         offchainRFP.creator = rfp.creator;
+        offchainRFP.disputeManager = rfp.disputeManager;
         offchainRFP.tasksManager = rfp.tasksManager;
         offchainRFP.manager = rfp.manager;
         offchainRFP.escrow = rfp.escrow;
